@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 
+import mysql.connector
 from pyzillow.pyzillow import ZillowWrapper, GetDeepSearchResults
 
 address = '8501 Katy Reid Ct.'
@@ -14,3 +15,25 @@ for prop in ['zillow_id', 'home_type', 'home_detail_link', 'graph_data_link', 'm
              'zestimate_valuation_range_high', 'zestimate_valuationRange_low', 'zestimate_percentile']:
     value = getattr(result, prop)
     print(f'{prop} = {value}')
+
+mysql_db = 'chris_zillow_example'
+mydb = mysql.connector.connect(
+    host='localhost',
+    user='',
+    passwd='',
+    database=mysql_db)
+
+try:
+    mycursor = mydb.cursor()
+    sql_command = '''
+                INSERT INTO zillow_results (zillow_id, home_type, tax_year, tax_value, year_built, property_size, bathroom)
+                VALUES(%s, %s, %s, %s, %s, %s, %s)'''
+
+    values = (result.zillow_id, result.home_type, result.tax_year, result.tax_value, result.year_built, result.property_size, result.bathroom)
+    mycursor.execute(sql_command, values)
+    mydb.commit()
+except mysql.connector.errors.ProgrammingError as err:
+    print('sql insert addresses function generated an error => {}'.format(err))
+
+except mysql.connector.errors.IntegrityError as err:
+    print('sql insert addresses function generated an error => {}'.format(err))
