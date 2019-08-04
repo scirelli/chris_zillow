@@ -16,12 +16,11 @@ for prop in ['zillow_id', 'home_type', 'home_detail_link', 'graph_data_link', 'm
     value = getattr(result, prop)
     print(f'{prop} = {value}')
 
-mysql_db = 'chris_zillow_example'
 mydb = mysql.connector.connect(
-    host='localhost',
-    user='',
-    passwd='',
-    database=mysql_db)
+    host='127.0.0.1',
+    user='root',
+    passwd=os.environ.get('MYSQL_PASSWORD', ''),
+    database='chris_zillow_example')
 
 try:
     mycursor = mydb.cursor()
@@ -29,7 +28,7 @@ try:
                 INSERT INTO zillow_results (zillow_id, home_type, tax_year, tax_value, year_built, property_size, bathroom)
                 VALUES(%s, %s, %s, %s, %s, %s, %s)'''
 
-    values = (result.zillow_id, result.home_type, result.tax_year, result.tax_value, result.year_built, result.property_size, result.bathroom)
+    values = (result.zillow_id, result.home_type, result.tax_year, result.tax_value, result.year_built, result.property_size, result.bathrooms)
     mycursor.execute(sql_command, values)
     mydb.commit()
 except mysql.connector.errors.ProgrammingError as err:
